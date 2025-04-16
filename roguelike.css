@@ -1,0 +1,481 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: black;
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+}
+
+#titleBox {
+  background: rgba(0, 0, 0, 0.75);
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 700px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.6);
+}
+
+#titleBox h6 {
+	margin-top: 100px;
+}
+
+#playButton {
+  display: block;
+  margin: 20px auto;
+  margin-top: 50px;
+}
+
+#worldCounter {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 500;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 18px;
+}
+
+#gameContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 0.3s ease;
+}
+
+.room {
+  width: 100px;
+  height: 100px;
+  background: #222;
+  position: absolute;
+  border: 1px solid #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.room:hover {
+  border: 2px solid green;
+  cursor: pointer;
+}
+
+.player {
+  width: 20px;
+  height: 20px;
+  background: blue;
+}
+
+#stats {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 155px;
+  background: #333;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.barContainer {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 20px;
+}
+
+.hpBar,
+.manaBar,
+.expBar {
+  width: 200px;
+  height: 20px;
+  position: relative;
+  display: inline-block;
+  background: #555;
+  margin-top: 5px;
+}
+
+.hpBarInner {
+  height: 100%;
+  background: green;
+  width: 100%;
+}
+
+.expBarInner {
+  height: 100%;
+  background: yellow;
+  width: 0%;
+}
+.manaBarInner {
+  height: 100%;
+  background: blue;
+  width: 100%;
+}
+
+#statsText {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 20px;
+}
+
+#inventorySlots {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+}
+
+.inventorySlot {
+  width: 40px;
+  height: 40px;
+  background: #555;
+  display: inline-block;
+  position: relative;
+  margin: 2px;
+  border: 1px solid #777;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 40px;
+}
+
+#battleTint {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 50;
+}
+
+#battleMenu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-120%, -50%);
+  background: #222;
+  border: 2px solid white;
+  padding: 20px;
+  display: none;
+  z-index: 100;
+}
+
+#battleMenu h3 {
+  margin: 0 0 10px;
+}
+
+#battleOptions button {
+  margin: 5px;
+  padding: 5px 10px;
+  background: #555;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#battleOptions button:hover {
+  background: #777;
+}
+
+#battleLog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(20%, -50%);
+  background: #222;
+  border: 2px solid white;
+  padding: 20px;
+  display: none;
+  z-index: 100;
+  width: 250px;
+  height: 200px;
+  overflow-y: auto;
+}
+
+#inventoryMenu {
+  display: none;
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background: #222;
+  border: 2px solid white;
+  padding: 10px;
+  z-index: 150;
+}
+
+#inventoryMenu button {
+  margin: 5px;
+  padding: 5px 10px;
+  background: #555;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#inventoryMenu button:hover {
+  background: #777;
+}
+
+#levelUpMenu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #222;
+  border: 2px solid white;
+  padding: 20px;
+  display: none;
+  z-index: 200;
+}
+
+#levelUpMenu button {
+  margin: 5px;
+  padding: 5px 10px;
+  background: #555;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#levelUpMenu button:hover {
+  background: #777;
+}
+
+#shopMenu {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #222;
+  border: 2px solid white;
+  padding: 20px;
+  z-index: 250;
+  width: 300px;
+}
+
+#shopMenu h3 {
+  margin-top: 0;
+}
+
+#shopMenu button {
+  margin: 5px;
+  padding: 5px 10px;
+  background: #555;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#shopMenu button:hover {
+  background: #777;
+}
+
+#deathMenu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #222;
+  border: 2px solid white;
+  padding: 20px;
+  display: none;
+  z-index: 300;
+  text-align: center;
+}
+
+#deathMenu button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  background: #555;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#deathMenu button:hover {
+  background: #777;
+}
+
+#playerLevel {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+#casinoMenu {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #222;
+  border: 2px solid white;
+  padding: 20px;
+  z-index: 350;
+  text-align: center;
+  width: 400px;
+}
+
+#casinoMenu h3 {
+  margin-top: 0;
+}
+
+#casinoMenu input[type="number"] {
+  width: 80px;
+  padding: 5px;
+  margin: 10px 0;
+}
+
+#casinoMenu .cardButtons button {
+  margin: 5px;
+  padding: 15px 20px;
+  font-size: 18px;
+  background: #555;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#casinoMenu .cardButtons button:hover {
+  background: #777;
+}
+
+#casinoMenu .smallButton {
+  padding: 8px 15px;
+  font-size: 14px;
+  background: #666;
+  border: none;
+  color: white;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#casinoMenu .smallButton:hover {
+  background: #888;
+}
+
+/* Guild Menu Modal */
+#guildMenu.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 350;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  border: 2px solid #fff;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+}
+
+/* Modal content styling */
+#guildMenu .modal-content {
+  position: relative;
+}
+
+/* Close button style */
+#guildMenu .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #444;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+#guildMenu .close-btn:hover {
+  background: #666;
+}
+
+/* Style the guild buttons */
+#guildMenu .guild-buttons button {
+  margin-top: 30px;
+  padding: 10px 20px;
+  background: #555;
+  border: 2px solid black;
+  color: #fff;
+  cursor: pointer;
+}
+
+#guildMenu .guild-buttons button:hover {
+  background: #777;
+}
+
+#libraryMenu {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 15px;
+  border: 2px solid #888;
+  border-radius: 8px;
+  z-index: 400;
+  overflow-y: auto;
+}
+
+#libraryMenu .tabs {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#libraryMenu .tabs button {
+  padding: 5px 10px;
+  margin: 0 5px;
+  cursor: pointer;
+  background: #555;
+  border: 2px solid black;
+  color: white;
+}
+
+#libraryMenu .tabs button:hover {
+  background: #777;
+}
+
+#libraryMenu .content.scrollable {
+  max-height: 300px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+#exitLibrary {
+  display: block;
+  margin: 0 auto;
+  padding: 5px 10px;
+  cursor: pointer;
+  background: #555;
+  border: none;
+  color: white;
+}
+
+#exitLibrary:hover {
+  background: #777;
+}
+
+@keyframes zoomBeat {
+  0%   { transform: scale(1); }
+  25%  { transform: scale(1.025); }
+  50% { transform: scale(1); }
+}
+
+/* this class simply runs the keyframe once */
+.zoom-beat {
+  animation: zoomBeat 0.49s infinite;
+}
