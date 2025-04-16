@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Roguelike! Infinity</title>
+    <!-- Link to the external CSS file -->
+    <link rel="stylesheet" href="roguelike.css" />
+    <style>
+      #titleScreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-image: url("background.webp");
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 1365px 600px;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+		margin-top: 20px;
+      }
+      #titleScreen h1 {
+        font-size: 48px;
+        margin-bottom: 20px;
+      }
+      #titleScreen .subheading {
+        font-size: 24px;
+        margin-bottom: 10px;
+        text-align: center;
+        max-width: 80%;
+      }
+      #titleScreen .subsubheading {
+        font-size: 18px;
+        margin-bottom: 30px;
+      }
+      #titleScreen button {
+        padding: 10px 20px;
+        font-size: 20px;
+        background: #555;
+        border: none;
+        color: white;
+        cursor: pointer;
+      }
+      #titleScreen button:hover {
+        background: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Title Screen -->
+    <div id="titleScreen">
+  <div id="titleBox">
+    <h1>Roguelike! Infinity<br> Alpha 3.0.0</h1>
+    <p>
+      From a weak, random nobody in this mysterious world of monsters, to an overpowered, monster slayer razing through crowds of demons. With an unlimited amount of potential, journey through an infinite dungeon, get stronger, grind for new items and equipment, fight your way through endless waves of monsters, and battle the gods that sent you to this hellhole!
+    </p>
+    <h5>
+      Personal Project by: Gabriel A. Barabar
+    </h5>
+    <button id="playButton" style="display: none;">Start Game</button>
+	<h6>
+	  (Press the screen to play!)
+	</h6>
+  </div>
+</div>
+
+<audio id="titleMusic" src="fire.mp3" loop></audio>
+
+<div id="abilityMenu" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+  background: rgba(0,0,0,0.85); padding: 20px; border: 2px solid white; border-radius: 10px; z-index: 900; max-width:800px;">
+  <h2>Decide your Innate Abilities</h2>
+  <div style="display:flex; flex-wrap: wrap; gap:20px;">
+    <!-- Spin / selection section -->
+    <div style="flex:1; min-width:300px;">
+	  <br><br>
+	  <p>Player Attribute: <span id="playerPassiveAbility">None</span></p>
+	  <p>Player Skill: <span id="playerActiveAbility">None</span></p>
+	  <br><br>
+      <button id="spinAbilityButton">Spin Ability</button>
+      <br><br>
+      <button id="confirmAbilitiesButton" disabled>Begin Journey!</button>
+    </div>
+    <!-- Scrollable ability list section -->
+    <div style="flex:1; min-width:300px; max-height:300px; overflow-y:auto; border: 1px solid white; padding: 10px; box-sizing: border-box;">
+      <h3>Possible Attributes:</h3>
+      <ul id="passiveAbilitiesList" style="list-style:none; padding:0; margin:0;"></ul>
+      <hr style="margin:10px 0; border-color: white;">
+      <h3>Possible Skills:</h3>
+      <ul id="activeAbilitiesList" style="list-style:none; padding:0; margin:0;"></ul>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Game Container (initially hidden until play button is pressed) -->
+    <div id="gameContainer" style="display: none;">
+      <div id="worldCounter"></div>
+	  <!-- Mission Display (HUD) -->
+<div id="missionDisplay" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; font-size: 18px; color: white;"></div>
+      <!-- Dynamic Map -->
+      <div id="map"></div>
+      <!-- Stats Panel -->
+      <div id="stats">
+        <div id="playerLevel">Player Level: 1</div>
+	<div id="guildRankText"> Guild Rank: None </div>
+		<div id="playerAbilitiesDisplay">
+			Attributes: <span id="hudPlayerPassive">None</span>&nbsp;&nbsp;&nbsp;&nbsp;Skill (Press Q to use): <span id="hudPlayerActive">None</span>
+		</div>
+        <div class="barContainer"> Vitality/HP: <span id="hpText">100/100</span>
+          <div class="hpBar">
+            <div class="hpBarInner" id="hpBarInner"></div>
+          </div>
+        </div>
+		<div class="barContainer">Mana: <span id="manaText">10/10</span>
+			<div class="manaBar">
+				<div class="manaBarInner" id="manaBarInner"></div>
+			</div>
+		</div>
+        <div class="barContainer"> EXP: <span id="expText">0/5</span>
+          <div class="expBar">
+            <div class="expBarInner" id="expBarInner"></div>
+          </div>
+        </div>
+        <br>
+        <div id="statsText"> Strength: <span id="attackStat">2</span>&nbsp; Durability: <span id="defenseStat">2</span>&nbsp; Magic: <span id="magicStat">2</span>&nbsp;&nbsp;&nbsp; $<span id="moneyStat">10</span>
+           <br> Agility: <span id="agilityStat">1</span>&nbsp; Perception: <span id="perceptionStat">1</span>
+	   <br> Potential: <span id="potentialStat">1</span>&nbsp; Luck: <span id="luckStat">1</span>&nbsp; Fortune: <span id="fortuneStat">1</span>&nbsp; 
+        </div> Inventory: <div id="inventorySlots">
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+          <div class="inventorySlot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Battle Tint -->
+    <div id="battleTint"></div>
+    <!-- Battle Menu -->
+    <div id="battleMenu">
+      <div id="enemyInfo"></div>
+      <div id="battleOptions">
+        <button id="attackBtn">Attack</button>
+        <button id="magicBtn">Spell</button>
+        <button id="itemsBtn">Items</button>
+        <button id="runBtn">Run</button>
+      </div>
+    </div>
+    <!-- Battle Log -->
+    <div id="battleLog"></div>
+    <!-- Inventory Menu -->
+    <div id="inventoryMenu"></div>
+    <!-- Level Up Menu -->
+    <div id="levelUpMenu">
+      <h3>Level Up! Choose a stat to increase:</h3>
+      <button data-stat="hp">Vitality</button>
+      <button data-stat="attack">Strength</button>
+      <button data-stat="defense">Durability</button>
+      <button data-stat="magic">Magic</button>
+      <button data-stat="agility">Agility</button>
+      <button data-stat="perception">Perception</button>
+      <button data-stat="potential">Potential</button>
+	  <button data-stat="luck">Luck</button>
+      <button data-stat="fortune">Fortune</button>
+    </div>
+    <!-- Shop Menu -->
+    <div id="shopMenu">
+      <h3>Shop</h3>
+      <div id="shopItems"></div>
+      <button id="closeShopBtn">Close</button>
+    </div>
+    <!-- Death Menu -->
+    <div id="deathMenu">
+      <h3>You died!</h3>
+      <button id="retryBtn">Retry</button>
+    </div>
+    <!-- Casino Menu -->
+    <div id="casinoMenu">
+      <h3>CASINO!</h3>
+	  <ul>Gamble your life savings away or earn millions!</ul>
+	  <br>
+      <div>
+        <strong>Enemy:</strong>
+        <span id="casinoEnemyTotal">0</span>
+        <br />
+        <strong>Player:</strong>
+        <span id="casinoPlayerTotal">0</span>
+      </div>
+      <div>
+        <label for="betInput">Bet money:</label>
+        <input type="number" id="betInput" min="1" value="1" />
+        <button id="placeBetBtn">Place Bet</button>
+      </div>
+      <div id="casinoGameArea" style="display: none;">
+        <div class="cardButtons">
+          <button class="hitBtn">Hit</button>
+          <button class="hitBtn">Hit</button>
+          <button class="hitBtn">Hit</button>
+          <button class="hitBtn">Hit</button>
+        </div>
+        <button class="smallButton" id="standBtn">Stand</button>
+      </div>
+    </div>
+	<div id="guildMenu" class="modal" style="display: none;">
+  <div class="modal-content">
+    <button id="closeGuildMenu" class="close-btn">X</button>
+    <h2><strong>GUILD</strong></h2>
+    <p id="guildRankText">Guild Rank: Newbie</p>
+    <div class="guild-buttons">
+      <button id="missionButton">Mission</button>
+      <button id="hireMercenaryButton">Hire Mercenary</button>
+	  <button id="libraryButton">Library</button>
+    </div>
+  </div>
+</div>
+
+    <div id="libraryMenu" style="display:none;">
+	<p><strong>The Library</strong></p>
+      <div class="tabs">
+		<button id="tabGuide">Guild Guide Vol. 1</button>
+		<button id="tabGuide2">Guild Guide Vol. 2</button>
+        <button id="tabHistory">World History</button>
+        <button id="tabPlayer">Valrr Human Anatomy</button>
+        <button id="tabInnates">Innates</button>
+		<button id="tabMonsters">Monster Encyclopedia</button>
+		<button id="tabLegends">The Legends of Valrr</button>
+		<button id="tabCrime">The Restricted One (DISCLOSED)</button>
+      </div>
+	  <div id="contentGuide" class="content scrollable" style="display:none;">
+		<h1><strong>Guild Guide Vol. 1</strong></h1>
+		<p>Welcome to the Guild! In this book, we will teach you information, tips and tricks about and to help you in your journey on this world!</p>
+		<h4>Tip 1 - Rooms</h4>
+		<p>In the world of Valrr, there are numerous areas called "<strong>domains</strong>". These domains are lands ruled by a <strong>Legend</strong>, and if you're a warrior, you're definitely gonna want to go there and fight some monsters to get stronger.<br>However, you may also notice that some areas have things in them, while some don't, well, these are thingies called "<strong>Rooms</strong>". Rooms are areas that are marked by previous adventurers from the Guild there to mark what they're for.</p>
+		<p>Here I will be explaining which rooms are which, and what they do: </p>
+		<ul>
+			<li><em><strong>Empty rooms</strong>: </em>Empty rooms are, well, empty. They've been marked as previous <em>Battle rooms</em> that have already been cleared, and are getting ready to get modified by the government and construction team into another room.</li>
+			<li><em><strong>Battle/Monster rooms</strong>: </em>Battle rooms are areas that contain monsters for warriors to battle, kill, and train in.</li>
+			<li><em><strong>Ambush rooms</strong>: </em>Ambush rooms are old empty rooms that have been unsupervised for a long time, therefore monsters have inhabited them once again, and monsters even take advantage of it to ambush warriors nearby, hence the name. So be careful whenever you find a suspiciously empty room, it might just be an Ambush room!</li>
+			<li><em><strong>Trap rooms</strong>: Trap rooms are empty rooms that have been set up with traps for monsters, however, some warriors might walk into them instead of monsters, so majority have been removed. However, some trap rooms have still been unidentified, so be careful on yur journey!</em></li>
+			<li><em><strong>Rest/Healing Zones</strong>: </em>Rest rooms, aka Healing Zones are rooms set up by the Guild construction teams to let warriors rest and recover their Strength, stamina and Mana.</li>
+			<li><em><strong>Shop rooms</strong>: </em>Shop rooms are set up by the Guild contruction teams for warriors to rest once more and buy items and equipment to help them on their adventure.</li>
+			<li><em><strong>Shrines</strong>: </em>Shrines were old buildings built by humans from the Modern era to pray to the gods for forgiveness during the Judgement era. However, the gods seem to have answered their prayers all these years later, as encountering these Shrines and praying to them give the warriors who do a powerful boost.</li>
+			<li><em><strong>Loot rooms</strong>: </em>Loot rooms were once considered "dumps" by the first warriors, where they would just throw away the materials dropped from monsters since they didn't know what to do with them yet. However, nowadays, people refer to them as Loot rooms as those materials are valuable to us now. Some Loot rooms even contain old equipment from past warriors who wandered here.</li>
+			<li><em><strong>Casino/Gambling rooms</strong>: </em>Casinos, or Gambling rooms, are illegal rooms created by businesspeople to make some extra cash in the middle of a domain. These are considered illegal as, A, they didn't get permission from the Guild, nor the government to have this built, B, they could possibly scam you of all of your valuables while you're out here in the middle of a domain, leaving you with nothing while there are monsters out and about, and C, these could risk the lives of warriors and adventurers, as monsters still lurk around these areas! So we recommend you do not go to these places.</li>
+			<li><em><strong>Legend/Boss rooms</strong>: </em>Legend rooms, or Boss rooms, are considered the danger zone of all rooms, as these rooms are where a Legend rests. Adventurers who go here either just came to look, the ones who marked the rooms, or are challengers who never came back out.</li>
+			<li><em><strong>The Guild</strong>: </em>Lastly, the Guild rooms, where all of our establishments are!</li>
+		</ul>
+		<h4>Tip 2 - Shop Stocks/Items</h4>
+		<p>In your adventure, you might find Shop rooms or Loot rooms, as mentioned earlier, and in those rooms you might be able to obtain specific items to help you out on your journey.</p>
+		<p>Here is the list of possible items you can obtain from these places, what prices they could sell for in the shops, and what they do: </p>
+		<ul>
+			<li><em><strong>Healing Potions</strong>: </em>Healing Potions are potions created with magic to recover warriors' stamina and Vitality when consumed. They cost $50 to buy in shops.</li>
+			<br>
+			<li><em><strong>Mana Potions</strong>: </em>Mana Potions are exactly like Healing Potions, but were made for the purpose of recovering Mana when consumed. They cost $50 to buy in shops.</li>
+			<br>
+			<li><em><strong>Iron Potions</strong>: </em>Iron Potions are potions that make warriors tougher and harder to take down for one battle when consumed. They cost $150 to buy in shops.</li>
+			<br>
+			<li><em><strong>Rage Potions</strong>: </em>Rage Potions are potions made to awaken your inner Rage, boosting your power greatly in exchange for your mentality for one battle when consumed. They cost $100 to buy in shops.</li>
+			<br>
+			<li><em><strong>Poison Potions</strong>: </em>Posion Potions are deadly potions that are meant to be thrown at enemies, not consumed. When thrown, the bottle will break and start poisoning the target, dealing constant damage to them. They cost $150 to buy in shops.</li>
+			<br>
+			<li><em><strong>Weaken Potions</strong>: </em>Weaken Potions are potions that, same as Poison Potions, are not meant to be consumed. When thrown, the bottle will break and the target will be slowed down and weakened. This costs $100 to buy in shops.</li>
+			<br>
+			<li><em><strong>Sword</strong>: </em>The essential to a warriors journey. An extension to the arm, to help slice apart monsters that get in your way.</li>
+			<br>
+			<li><em><strong>Staff</strong>: </em>The staff is essential to a magic-type warrior, as it helps them focus their Magic into one spot, allowing for deadly spells to blow away foes.</li>
+			<br>
+			<li><em><strong>Armor</strong>: </em>Armor is meant to help warriors who wear them resist more attacks, allowing them to last longer in battle to slay more enemies.</li>
+			<br>
+			<li><em><strong>Scarf</strong>: </em>The scarf may seem like a simple cosmetic to you, but it actually has a special enchantment to help warriors be more agile in battle.</li>
+			<br>
+			<li><em><strong>Glasses</strong>: </em>Ah yes, glasses, to help those with visual impairments see better, and to help warriors NEVER MISS ATTACKS.</li>
+			<br>
+			<li><em><strong>Sharpener</strong>: </em>Sharpeners are not what you think. You might think they're for pencils, but these sharpeners are meant to sharpen your weapons and land critical attacks much easier.</li>
+			<br>
+			<li><em><strong>Dice</strong>: </em>The... dice? This isn't officially sold by the Guild...? It seems like these are illegally sold by shops who work together or against Casinos, as Dices seem to help you cheat and guarantee a win in EVERY casino game. They apparently cost $1000 to buy in shops.</li>
+			<br>
+			<li><em><strong>Nike Black Air Force</strong>: </em>Sponsored by Nike themselves. These shoes are high-quality, limited edition shoes that allow warriors to move around rooms much easier and much faster. They cost $3000 to buy in shops</li>
+		</ul>
+		<h4>Tip 3 - Monster Growth</h4>
+		<p>In this world, as you may know, you grow stronger as you kill, all humans do. However, did you know monsters are growing too?</p>
+		<p>Monsters in this world, aren't just braindead monsters that chase after you and crash into walls, no. Monsters are like humans, they're smart, they can grow, and they can evolve.</p>
+		<p>But monsters don't grow stronger in the way you might think. Unlike us humans, that grow over time as we train and fight, monsters don't grow that way, instead, they grow in strength as new monsters are born. As ever since around 1000 years ago, when humanity finally came out of hiding and got stronger, the gods also "buffed" the monsters by making them smart, and allowing them to get stronger depending on the person that slayed them.</p>
+		<p>When a monster dies, they don't decay, instead, they turn into materials, unbelievable, right? Well, only if you're not a warrior.<br> After that, the monster's soul is then reincarnated into a new body, which is much, much stronger than before, and it's the killer's strength that is added onto them.</p>
+		<p>So basically, if the world gets stronger, so will the monsters, and if the monsters are getting stronger, the humans should too. It's a constant power creep that we just can't stop, and we'll have to keep going if we want to pass this "Trial" that the gods have set up for us.</p>
+	  </div>
+	  <div id="contentGuide2" class="content scrollable" style="display:none;">
+		<h1><strong>Guild Guide Vol. 2</strong></h1>
+		<p>Welcome to the Guild! In this sequel to the original, we will teach you even more information, tips and tricks about and to help you in your journey on this world!</p>
+		<h4>Tip 1 - Builds</h4>
+		<p>In this world, humans have thingies called Physical Attributes, or stats in simple terms.</p>
+		<p>Warriors can upgrade their stats through battle, as warriors consumes the EXP that monsters drop. Once a warrior consumes enough, they "level up" in a way, and their Physical Attributes will rise depending on the way they fight, their style, and how they kill the monsters.</p>
+		<p>Popular builds that people train for are usually: </p>
+		<ul>
+			<li><em><strong>Tank/Vitality Build</strong></em> - Warriors would just focus all of their training on either Vitality or Durability. This is a very good build for the early parts of your journey, as enemies are usually very weak then and with your base offensive stats alone, you can take them down. Just use this build and grind for items until you reach around he 30th floor, then I would recommend you start increasing your offensive stats.</li>
+			<li><em><strong>Potential Build</strong></em> - With this training, warriors would focus all of their training into their Potential. This way, warriors would grow way faster and way more than they need to. In fact, with this build, warriors could "level up" with only a single battle every time once their Potential has reached high enough, then they could start investing in their other stats and get stronger exponentially.</li>
+			<li><em><strong>One Punch Build</strong></em> - Berserker-innate warriors usually go for this build, where all of their training is just focused into their Strength. With this, despite the enemies being way stronger than the player, one Attack should be enough for everyone in your way.</li>
+			<li><em><strong>One Spell Build</strong></em> - This is basically just the One Punch Build but with the Magic attribute. This is much more recommended as Spells deal exponentially more damage than physical Attacks. The only problem with spellcasting really is that it costs mana.</li>
+			<li><em><strong>Ultra Instinct Build</strong></em> - This build is better later on, when your stats are enough to deal with the current monsters that you'll deal with. Once they do, you should just begin investing all of your training into Agility, and soon, you'd dodge ALL of your enemys attacks, no matter what.</li>
+			<li><em><strong>Sniper Build</strong></em> - This is just the Ultra Instinct Build but with Perception instead. Once your Perception is enough, you can guarantee Critical Attacks each and every time.</li>
+			<li><em><strong>Millionaire Build</strong></em> - If you wanna grind money fast, this is the way. Focus all of your training into Fortune, and you might become a millionaire within the first 50 floors.(Tested) However, this is VERY not recommended early on, as you would get decimated with your "Level 1 Stats".</li>
+		</ul>
+		<h4>Tip 2 - </h4>
+		<p>
+		<p>
+		<ul>
+			<li><em>
+		</ul>
+		<h4>Tip 3 - </h4>
+		<p>
+		<p>
+		<ul>
+			<li><em>
+		</ul>
+	  </div>
+      <div id="contentHistory" class="content scrollable">
+		<h1><strong>"The Story of Valrr"</strong></h1>
+		<h5>The History of Valrr, a medieval planet of magic, monsters and gods.</h5>
+		<br><br>
+		<strong>Chapter 1 - Cause</strong>
+		<br><br><br>
+		This world was once peaceful, known as Earth, and we were once very technologically advanced. 
+		<br><br>However, one day, something occurred. A terrible, terrible event, known as "Judgement Day". What we once assumed was one God, turned out to be multiple, as numerous titanic entities appeared out of nowhere in the sky. One was as dark as the voids of space, one shined as brightly as the brighest star, and one stood high above everything else. <br><br>The one standing in the middle began speaking, saying something like, 
+		<br><br>
+		"<strong>Humans, thou all hast failed us for the last time. <br>'tis  finally time for thou all to repent for thy sins.</strong>" 
+		<br><br>
+		Then, the gods vanished, beginning the Judgement era of humanity.
+		<br><br><br> 
+		<strong>Chapter 2 - Effect</strong> 
+		<br><br>
+		Humanity panicked, society went into chaos. Scientist quickly began rushing to build spaceships to fly us all out of here, but it only resulted in failure, as the worldwide economy crashed down on itself. Every government in the world also began crashing down, the military began blindly launching missiles in the sky as if it would do something, backfiring horribly as it all launched back down on other countries. The world fell into a huge war, destroying itself, slowly but surely. 
+		<br><br>
+		5 years into the war, the world realized, 5 years passed after the gods appeared, yet, nothing happened. Were we played? Were we fooled? Is this their form of judgement? 
+		<br><br>
+		The war stopped abruptly as soon as they all found this out, all governments of the world quickly going to peace to work together, to try and fix this whole mistake. 
+		<br><br>
+		However, the damage was done, the planet was in ruins, and it would take 1000 years to bring it all back. The modern era was over...
+		<br><br><br> 
+		<strong>Chapter 3 - Aftershock</strong> 
+		<br><br>
+		A decade passed since the war, humanity tries to put itself back together, thinking the problem was over, as the gods that appeared all those years ago have not made a single move since then. <br><br>However, just when humanity though they were back in the game. Boom. The gods reappeared, saying, 
+		<br><br>
+		"<strong>Humans, thou hast passed the first trial, but 'tis isn't over yet. It is finally time for thy second trial. <br>When thou art all complete, thou all shall find us, meet us, and bargain.<br>Maybe then, thy judgement shall finally be over.</strong>" 
+		<br><br> 
+		The gods say once more, as portals suddenly began appearing all over the world, as powerful monsters began coming out of them. 
+		<br><br>
+		The military tried to shoot them all down, and it worked. Monsters were falling down one by one with each shot. However, they also began getting back up, as humans also realized they all had multiple of each vital organs, and even got stronger each time they did. 
+		<br><br>
+		Humanity then also tried bombing them, but more and more monsters kept coming back out of the portal, more than what was even being killed. <br><br>So then, humanity, surrendered...<br><br><strong>Chapter 4 - The Return</strong>
+		<br><br>
+		We all went into hiding for the next hundred years, before rising back up another hundred years later. Humanity was back to where we were before all the technology, as we tried to redo all of our progress when in hiding, but due to the lack of resources, and how humans have relied too much on our own tech and AI, we fell back down and had to start from scratch. When we returned to the surface, we found that all of the portals around the world have closed, but monsters were now everywhere, and were exponentially stronger than they were before. Humanity knew we were ruined. 
+		<br><br>
+		However, one day, another thing occurred... the gods have given the humans, a chance to fight back. 
+		<br><br>
+		Humans all over the world began getting stronger, faster, and better. People could cast magic, and best of all, humans gained powerful abilities what we call, "Innates". These innates varied, from superhuman strength, to powerful unique abilities that only those humans can have. 
+		<br><br>
+		Humans started fighting back, with those who do being called "<strong>Warriors</strong>" able to even kill monsters with their bare fists. Monsters also dropped strange materials, some were nothing, so humans made them into currency, and another thing, which us humans called EXP(similar to video games in the Modern era), made humans grow stronger when touched, as they seemed to dissolve. Humans began making businesses with the new monster currency, which was stilled named Dollars($) after the most prominent type of currency in the Modern era, to help the warriors who kills the monsters; weapons, armor, equipment, sold all over the world as we all got even stronger and stronger. 
+		<br><br>
+		Humanity was back, in fact, humans got so strong, and were killing the monsters faster than we could ever imagine, the worldwide monster population fell by 5% in 2 weeks. 
+		<br><br><br>
+		<strong>Chapter 4 - Monsters</strong>
+		<br><br>
+		However, the gods didn't just idle around, watching this all go down. We passed our second trial, as the gods quickly began the third. The gods made the monsters evolve exactly as animals do. The monsters grew reproductive organs, they gained sentience, and they evolved, at a matching rate as the humans did. 
+		<br><br>
+		With that, Legends were born. Powerful, gigantic monsters that lived in a certain part of the world called a domain. These Legends lived in their domains and guarded them, protecting the monsters that lived with them. Monsters all around the world also began living in certain domains, to gain the protection of their own legend. And so, the monsters started the monster society, and humanity was basically at war with them. 
+		<br><br>
+		And all that, leads to where we are now. The planet was named Valrr by the new governments, who were once kids that loved playing the video games that we managed to salvage from the Modern era, and thought that it sounded like a fantasy game, and it was named after the word, valor, to encourage, motivate and inspire the warriors who fight for us against the monsters.
+		<br><br><br>
+		<h2><strong>-END-</strong></h2>
+	  </div>
+      <div id="contentPlayer" class="content scrollable" style="display:none;">
+		<h1><strong>The Human Physical Attributes</strong></h1>
+        <p>The human being, otherwise known as the Homo sapien, were once nothing but slightly more advanced animals. However, ever since 1000 years ago, humans gained many new attributes and abilities, which allowed every human to get stronger and fight back the monsters that rampage this world.<p>
+		<p>Humans have 9 main physical attributes that can grow if they absorb enough EXP from monsters:</p>
+		<ul>
+        <li><em><strong>Vitality</strong>:</em> Vitality seems to increase a human's will, stamina, and basically, how long they can last in battle.</li>
+        <br>
+		<li><em><strong>Strength</strong>:</em> Strength increases the human's power, allowing a single human to carry hundreds of kilograms, and possibly launch a monster dozens of feet away with a single blow.</li>
+        <br>
+		<li><em><strong>Durability</strong>:</em> Durability allows the human's toughness to increase greatly, allowing them to take more hits with more ease.</li>
+        <br>
+		<li><em><strong>Magic</strong>:</em> Magic allows a human to conjure up spells, and even use their Innate. However, there's also a thing called <strong>mana</strong>, which limits the amount of magic a human can use. The more magic a human has, the stronger they get, and the more spells they can cast, and the more mana they have.</li>
+        <br>
+		<li><em><strong>Agility</strong>:</em> Agility allows the human being to move around more easily, increasing their senses to, at some point, see in slow motion.</li>
+		<br>
+		<li><em><strong>Perception</strong>:</em> Perception allows the human being to also increase their senses, thinking speed, etc. Basically allowing one to "see through" others with their mind, find the <strong>weak points</strong> of things, and find ways to deal with problems quicker.</li>
+        <br>
+		<li><em><strong>Potential</strong>:</em> Potential seems to decide how humans grow. Some people have greater potential, therefore allows them to get much stronger, smarter, etc., much faster.</li>
+        <br>
+		<li><em><strong>Luck</strong>:</em> Luck is a unique attribute that humans once thought was only a concept, but has now been found to be real. The more luck a human has, well, the luckier they are. Finding "good" things much more easily, and take advantage of coincidence.</li>
+        <br>
+		<li><em><strong>Fortune</strong>:</em> Fortune is pretty much just Luck, but affects money, or something.</li>
+      </ul>
+      </div>
+      <div id="contentInnates" class="content scrollable" style="display:none;">
+		<h1><strong>Innate Attributes and Skills</strong></h1>
+        <p>The human being, otherwise known as the Homo sapien, were once nothing but sentient animals with slightly more intelligence than others. However, ever since 1000 years ago, humans gained something called "Innates", which allowed humans to use powerful unique Skills, and have unique physical Attributes to help fight against the monsters that ruined everything. However, 40% of humans around the world still don't seem to have Innates, so they're just meant to live life in their homes, while others still choose to be warriors that fight for us all.</p>
+		<p>Humans currently have 12 known unique attributes that have been scientifically proven that people have, with some, most people have, and some, only 1 in a billion have: <p>
+		<ul>
+			<li><em><strong>Tough</strong>: </em>People with this attribute are usually more tougher to deal with and take down, with them only taking half as much damage as normal people do.</li>
+			<br>
+			<li><em><strong>Quick</strong>: </em>People with this attribute are usually a lot faster than others, think a lot faster, move a lot faster, and do everything a lot faster. So they're usually the most arrogant in battle, as they are basically uncatchable.</li>
+			<br>
+			<li><em><strong>Reckless</strong>: </em>People with this attribute are usually a lot more wild than others, as people with this attribute rush straight into battle. Although they are known to be extremely powerful, they're also known to be killed in battle the most.</li>
+			<br>
+			<li><em><strong>Berserker</strong>: </em>People with this attribute are known to be extremely powerful, with unimaginable strength, incomparable to others. They're known to take down waves of monsters by themselves, with their bare hands.</li>
+			<br>
+			<li><em><strong>Arcane</strong>: </em>People with this attribute are known to be extremely prominent in magic, with them even having a nigh-endless amount of mana, being able to cast more and more spells than any others.</li>
+			<br>
+			<li><em><strong>Hunter</strong>: </em>People with this attribute are known to be more silent, observant, and more critical in battle. With the natural instinct to strike from behind, these guys are known to finish battles off quickly, and silently.</li>
+			<br>
+			<li><em><strong>Golden</strong>: </em>People with this attribute are known to... well, shine like gold. Golden people usually gain more of the currency material in battle, for some reason, and are also known to finish battles with a bang. These guys are also literally made of gold, so they are stronger, and tougher than normal people.</li>
+			<br>
+			<li><em><strong>Adaptable</strong>: </em>People with this attribute are known to be literally invincible. With each battle, despite being completely outmatched, always find a way around and win. Hell, they grow much faster than others too.</li>
+			<br>
+			<li><em><strong>Ambidextrous</strong>: </em>People with this attribute are usually very good at everything, especially strength and magic, using both with perfect synergy.</li>
+			<br>
+			<li><em><strong>Aura Farmer</strong>: </em>People with this attribute are known to be very, very cool. They grow exponentially faster than everyone else, and are known to finish battles sending chills down everyone and everything's spines.</li>
+			<br>
+			<li><em><strong>Heavenly Restricted</strong>: </em>This is an extremely rare attribute, as only one person in history was known to have this attribute. All that people know about this attribute, is that you'll get unimaginable strength, even greater than that of Berserkers, but absolutely zero Innate, magical, and growth potential whatsoever.</li>
+		</ul>
+		<p>Then, the one you've been waiting for... Innates! Innates are special abilities that were given to us by the gods 1000 years ago to help us fend off the monsters that they also sent to us as one of their "trials". Innates can do various different things, from boosting a human's physical abilities, to activating powerful attacks to decimate any foe in your way, but all Innates share one thing in common; they use up Mana, and a LOT of stamina. So you're gonna want to train up your Magic if you wanna use your Innates a lot, and be careful of when you want to use an Innate, since you can only use it once in battle.</p>
+		<p>Many humans also seem to share an Innate ability, with some being more common in humans than others, and some being a lot rarer, with some only even being owned by one person, ever. Note that 40% of humanity also doesn't have Innates, but most still go to battle anyway, as most non-Innate users usually have very good Strength. But here, we will only explain the ones that have been proven to be owned by many people, along with SOME special Innates.<p>
+		<ul>
+			<li><em><strong>Rage</strong>: </em>This is known as "The Most Common Innate", as over 10% of all innate users basically own this Innate Skill. This Innate basically just increases the human's overall power, allowing them to rampage all around the battlefield, in exchange for their mentality.</li>
+			<br>
+			<li><em><strong>Strike</strong>: </em>This is another pretty common Innate, mostly used by physical-type warriors, allowing the human being to land one powerful strike.</li>
+			<br>
+			<li><em><strong>Blast</strong>: </em>This Innate is also pretty common. It's basically the magic counterpart to Strike, allowing the human to charge up their magic into one powerful spell to blast away foes.</li>
+			<br>
+			<li><em><strong>Dash</strong>: </em>This Innate is considered a very good Innate, as it drastically boosts a human's Agility, allowing them to move around much quicker when casted.</li>
+			<br>
+			<li><em><strong>Heal</strong>: </em>This Innate is very useful, and usually are meant for supporters in warrior teams, or by one-man-armies, as humans can use it as a quick way to recover when in battle.</li>
+			<br>
+			<li><em><strong>Hunt</strong>: </em>This Innate is usually used by Hunter-type people, hence why it's called Hunt, as with a single Hunt, you can deal massive, critical damage to an enemy, and weaken them.</li>
+			<br>
+			<li><em><strong>Maxima</strong>: </em>This Innate is considered one of the rarer Innates, and is considered one of the most powerful, as only the most powerful Magic-users can use this. Costing you an extra amount of Mana, using this charges up 200% of a user's Magical energy, and obliterating anything in your way once you launch the attack.</li>
+			<br>
+			<li><em><strong>Super Slash</strong>: </em>This Innate is also basically the physical-counter part of Maxima, used by physical-type warriors and blade users. When chanted, the human's striking arm's strength is boosted to it's limit, allowing a single strike, even by a hand, to tear through anything in its path.</li>
+			<br>
+			<li><em><strong>Blade of Gold</strong>: </em>This Innate was used by a Legendary Warrior 300 years ago, who, with this Innate, striked down thousands of monsters with a single blow with a golden sword, created by this spell by fusing all of the user's gold and Dollars into a single weapon.</li>
+			<br>
+			<li><em><strong>Necromancy</strong>: </em>This Innate is currently theoretical, as there is currently no known user. However, it's still possible to be obtained by someone in the future, and it's been theorized by people that; whoever does manage to find an Innate like this, will be the one to save the world, and return Valrr to the glorious Earth that we once were, or further! This Innate would basically allow the user to resurrect any slain monster, and make it their own soldier to fight with them.</li>
+		</ul>
+	  </div>
+	  <div id="contentMonsters" class="content scrollable" style="display:none;">
+		<h1><strong>Monster Encyclopedia</strong></h1>
+		<p>In this book, every known monster that exists in Valrr will be explained. Their names, calculated stats, categories, domains, resistances, etc.</p>
+		<p><strong>Name:</strong> Goblin
+		<br>
+		<strong>Domain/s</strong>: Deep Forests, Deathly, Cliffs, Silkwoven Caverns, Archaic Caverns, Never-ending Tunnels, Molten Treasure Trove
+		<br>
+		<strong>Base HP</strong>: 25
+		<br>
+		<strong>Base Damage</strong>: 4-10
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Wolf
+		<br>
+		<strong>Domain/s</strong>: Deep Forests, Deathly Cliffs, Shi Mountains, Ancient Kingdom
+		<br>
+		<strong>Base HP</strong>: 30
+		<br>
+		<strong>Base Damage</strong>: 6-13
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Bear
+		<br>
+		<strong>Domain/s</strong>: Deep Forests, Deathly Cliffs, Shi Mountains, Ancient Kingdom
+		<br>
+		<strong>Base HP</strong>: 40
+		<br>
+		<strong>Base Damage</strong>: 5-11
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Monster Crow
+		<br>
+		<strong>Domain/s</strong>: Deep Forests, Abandoned Graveyard, Deathly Cliffs, Bone Castle, Arcane Swamps, Sky Dimension, Molten Treasure Trove
+		<br>
+		<strong>Base HP</strong>: 20
+		<br>
+		<strong>Base Damage</strong>: 3-7
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Demon Bat
+		<br>
+		<strong>Domain/s</strong>: Abandoned Graveyard, Bone Castle, Silkwoven Caverns, Arcane Swamps, Shi Mountains, Archaic Cavern, Sky Dimension, Molten Treasure Trove
+		<br>
+		<strong>Base HP</strong>: 15
+		<br>
+		<strong>Base Damage</strong>: 5-8
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Zombie
+		<br>
+		<strong>Domain/s</strong>: Abandoned Graveyard, Bone Castle, Arcane Swamps, Scorching Desert, Never-ending Tunnels, Molten Treasure Trove
+		<br>
+		<strong>Base HP</strong>: 35
+		<br>
+		<strong>Base Damage</strong>: 4-8
+		<br>
+		<strong>Resistance</strong>: Magic
+		<br>
+		<br>
+		<strong>Name</strong>: Skeleton
+		<br>
+		<strong>Domain/s</strong>: Abandoned Graveyard, Deathly Cliffs, Bone Castle, Arcane Swamps, Shi Mountains, Archaic Cavern, Scorching Desert, Never-ending Tunnels, Freezing Tundra
+		<br>
+		<strong>Base HP</strong>: 25
+		<br>
+		<strong>Base Damage</strong>: 6-11
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Ghoul
+		<br>
+		<strong>Domain/s</strong>: Abandoned Graveyard, Bone Castle, Silkwoven Caverns, Arcane Swamps, Archaic Cavern, Sky Dimension, Molten Treasure Trove
+		<br>
+		<strong>Base HP</strong>: 20
+		<br>
+		<strong>Base Damage</strong>: 8-14
+		<br>
+		<strong>Resistance</strong>: All
+		<br>
+		<br>
+		<strong>Name</strong>: Giant Spider
+		<br>
+		<strong>Domain/s</strong>: Abandoned Graveyard, Silkwoven Caverns, Arcane Swamps, Shi Mountains, Archaic Cavern, Never-ending Tunnels, Molten Treasure Trove
+		<br>
+		<strong>Base HP</strong>: 25
+		<br>
+		<strong>Base Damage</strong>: 7-9
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Giant Scorpion
+		<br>
+		<strong>Domain/s</strong>: Silkwoven Caverns, Scorching Desert
+		<br>
+		<strong>Base HP</strong>: 35
+		<br>
+		<strong>Base Damage</strong>: 6-10
+		<br>
+		<strong>Resistance</strong>: All
+		<br>
+		<br>
+		<strong>Name</strong>: Possessed Armor
+		<br>
+		<strong>Domain/s</strong>: Bone Castle, Archaic Cavern, Freezing Tundra, Ancient Kingdom, 
+		<br>
+		<strong>Base HP</strong>: 80
+		<br>
+		<strong>Base Damage</strong>: 11-14
+		<br>
+		<strong>Resistance</strong>: All
+		<br>
+		<br>
+		<strong>Name</strong>: Golem
+		<br>
+		<strong>Domain/s</strong>: Silkwoven Caverns, Shi Mountains, Archaic Cavern, Never-ending Tunnels, Freezing Tundra, Ancient Kingdom, Molten Treasure Trove
+		<br>
+		<strong>Base HP</strong>: 100
+		<br>
+		<strong>Base Damage</strong>: 9-12
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Sandworm
+		<br>
+		<strong>Domain/s</strong>: Scorching Desert, Never-ending Tunnels
+		<br>
+		<strong>Base HP</strong>: 40
+		<br>
+		<strong>Base Damage</strong>: 8-13
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Vulture
+		<br>
+		<strong>Domain/s</strong>: Scorching Desert, Sky Dimension
+		<br>
+		<strong>Base HP</strong>: 35
+		<br>
+		<strong>Base Damage</strong>: 4-9
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Ice Golem
+		<br>
+		<strong>Domain/s</strong>: Freezing Tundra
+		<br>
+		<strong>Base HP</strong>: 80
+		<br>
+		<strong>Base Damage</strong>: 11-16
+		<br>
+		<strong>Resistance</strong>: Magic
+		<br>
+		<br>
+		<strong>Name</strong>: Ice Spirit
+		<br>
+		<strong>Domain/s</strong>: Freezing Tundra
+		<br>
+		<strong>Base HP</strong>: 40
+		<br>
+		<strong>Base Damage</strong>: 7-12
+		<br>
+		<strong>Resistance</strong>: All
+		<br>
+		<br>
+		<strong>Name</strong>: Piranha
+		<br>
+		<strong>Domain/s</strong>: The Black Sea, Vast Ocean
+		<br>
+		<strong>Base HP</strong>: 15
+		<br>
+		<strong>Base Damage</strong>: 5-10
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Shark
+		<br>
+		<strong>Domain/s</strong>: The Black Sea, Vast Ocean
+		<br>
+		<strong>Base HP</strong>: 40
+		<br>
+		<strong>Base Damage</strong>: 6-9
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Giant Albatross
+		<br>
+		<strong>Domain/s</strong>: Vast Ocean, Sky Dimension
+		<br>
+		<strong>Base HP</strong>: 35
+		<br>
+		<strong>Base Damage</strong>: 4-8
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Cyborg Guard
+		<br>
+		<strong>Domain/s</strong>: Future Megalopolis
+		<br>
+		<strong>Base HP</strong>: 70
+		<br>
+		<strong>Base Damage</strong>: 11-14
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Drone
+		<br>
+		<strong>Domain/s</strong>: Future Megalopolis
+		<br>
+		<strong>Base HP</strong>: 50
+		<br>
+		<strong>Base Damage</strong>: 13-17
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Giant Robot
+		<br>
+		<strong>Domain/s</strong>: Future Megalopolis
+		<br>
+		<strong>Base HP</strong>: 80
+		<br>
+		<strong>Base Damage</strong>: 16-17
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Cursed Spirit
+		<br>
+		<strong>Domain/s</strong>: Shinjuku, Shibuya
+		<br>
+		<strong>Base HP</strong>: 60
+		<br>
+		<strong>Base Damage</strong>: 11-15
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Sorcerer
+		<br>
+		<strong>Domain/s</strong>: Shinjuku, Shibuya
+		<br>
+		<strong>Base HP</strong>: 70
+		<br>
+		<strong>Base Damage</strong>: 17-18
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Shikigami
+		<br>
+		<strong>Domain/s</strong>: Shinjuku, Shibuya
+		<br>
+		<strong>Base HP</strong>: 90
+		<br>
+		<strong>Base Damage</strong>: 13-17
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Imp
+		<br>
+		<strong>Domain/s: The Underworld, Hell
+		<br>
+		<strong>Base HP: 50
+		<br>
+		<strong>Base Damage</strong>: 10-15
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Demon
+		<br>
+		<strong>Domain/s</strong>: The Underworld, Hell
+		<br>
+		<strong>Base HP</strong>: 90
+		<br>
+		<strong>Base Damage</strong>: 13-17
+		<br>
+		<strong>Resistance</strong>: Magic
+		<br>
+		<br>
+		<strong>Name</strong>: Archdemon
+		<br>
+		<strong>Domain/s</strong>: The Underworld, Hell
+		<br>
+		<strong>Base HP</strong>: 120
+		<br>
+		<strong>Base Damage</strong>: 12-16
+		<br>
+		<strong>Resistance</strong>: Magic
+		</p>
+	  </div>
+	  <div id="contentLegends" class="content scrollable" style="display:none;">
+		<h1><strong>Legends</strong></h1>
+		<h5>Kings and Queens of the Monster Society</h5>
+		<br>
+		<br>
+		<p><strong>Name</strong>: Goblin King
+		<br>
+		<strong>Domain</strong>: Deep Forests
+		<br>
+		<strong>Base HP</strong>: 100
+		<br>
+		<strong>Base Damage</strong>: 20-30
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Mutant Zombie
+		<br>
+		<strong>Domain</strong>: Abandoned Graveyard
+		<br>
+		<strong>Base HP</strong>: 120
+		<br>
+		<strong>Base Damage</strong>: 25-55
+		<br>
+		<strong>Resistance</strong>: Magic
+		<br>
+		<br>
+		<strong>Name</strong>: Giant Lord
+		<br>
+		<strong>Domain</strong>: Deathly Cliffs
+		<br>
+		<strong>Base HP</strong>: 250
+		<br>
+		<strong>Base Damage</strong>: 30-65
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Skeleton King
+		<br>
+		<strong>Domain</strong>: Bone Castle
+		<br>
+		<strong>Base HP</strong>: 110
+		<br>
+		<strong>Base Damage</strong>: 40-80
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Spider Queen
+		<br>
+		<strong>Domain</strong>: Silkwoven Caverns
+		<br>
+		<strong>Base HP</strong>: 140
+		<br>
+		<strong>Base Damage</strong>: 45-75
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: The Witch
+		<br>
+		<strong>Domain</strong>: Arcane Swamps
+		<br>
+		<strong>Base HP</strong>: 120
+		<br>
+		<strong>Base Damage</strong>: 50-100
+		<br>
+		<strong>Resistance</strong>: Magic
+		<br>
+		<br>
+		<strong>Name</strong>: Titan Golem
+		<br>
+		<strong>Domain</strong>: Shi Mountains
+		<br>
+		<strong>Base HP</strong>: 350
+		<br>
+		<strong>Base Damage</strong>: 50-80
+		<br>
+		<strong>Resistance</strong>: All
+		<br>
+		<br>
+		<strong>Name</strong>: Wyvern
+		<br>
+		<strong>Domain</strong>: Archaic Cavern
+		<br>
+		<strong>Base HP</strong>: 200
+		<br>
+		<strong>Base Damage</strong>: 50-90
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Giant Sandworm
+		<br>
+		<strong>Domain</strong>: Scorching Desert
+		<br>
+		<strong>Base HP</strong>: 150
+		<br>
+		<strong>Base Damage</strong>: 60-100
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Titanoboa Lord
+		<br>
+		<strong>Domain</strong>: Never-ending Tunnels
+		<br>
+		<strong>Base HP</strong>: 170
+		<br>
+		<strong>Base Damage</strong>: 60-100
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Abominable Snowman
+		<br>
+		<strong>Domain</strong>: Freezing Tundra
+		<br>
+		<strong>Base HP</strong>: 190
+		<br>
+		<strong>Base Damage</strong>: 70-120
+		<br>
+		<strong>Resistance</strong>: None
+		<br>
+		<br>
+		<strong>Name</strong>: Omegalodon
+		<br>
+		<strong>Domain</strong>: The Black Sea
+		<br>
+		<strong>Base HP</strong>: 200
+		<br>
+		<strong>Base Damage</strong>: 50-140
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Leviathan
+		<br>
+		<strong>Domain</strong>: Vast Ocean
+		<br>
+		<strong>Base HP</strong>: 300
+		<br>
+		<strong>Base Damage</strong>: 60-140
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Angel
+		<br>
+		<strong>Domain</strong>: Sky Dimension
+		<br>
+		<strong>Base HP</strong>: 320
+		<br>
+		<strong>Base Damage</strong>: 60-150
+		<br>
+		<strong>Resistance</strong>: Magic
+		<br>
+		<br>
+		<strong>Name</strong>: Mega Meta Mecha Annihilator - Model: Ultima
+		<br>
+		<strong>Domain</strong>: Future Megalopolis
+		<br>
+		<strong>Base HP</strong>: 600
+		<br>
+		<strong>Base Damage</strong>: 80-160
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Grand Knight
+		<br>
+		<strong>Domain</strong>: Ancient Kingdom
+		<br>
+		<strong>Base HP</strong>: 800
+		<br>
+		<strong>Base Damage</strong>: 60-150
+		<br>
+		<strong>Resistance</strong>: All
+		<br>
+		<br>
+		<strong>Name</strong>: Six-Eyed Calamity
+		<br>
+		<strong>Domain</strong>: Shinjuku
+		<br>
+		<strong>Base HP</strong>: 500
+		<br>
+		<strong>Base Damage</strong>: 90-180
+		<br>
+		<strong>Resistance</strong>: All
+		<br>
+		<br>
+		<strong>Name</strong>: The King of Curses
+		<br>
+		<strong>Domain</strong>: Shibuya
+		<br>
+		<strong>Base HP</strong>: 600
+		<br>
+		<strong>Base Damage</strong>: 100-170
+		<br>
+		<strong>Resistance</strong>: All
+		<br>
+		<br>
+		<strong>Name</strong>: The Dragon King
+		<br>
+		<strong>Domain</strong>: Molten Treasure Trove
+		<br>
+		<strong>Base HP</strong>: 800
+		<br>
+		<strong>Base Damage</strong>: 80-160
+		<br>
+		<strong>Resistance</strong>: Attack
+		<br>
+		<br>
+		<strong>Name</strong>: Guardian of Hell, Cerberus
+		<br>
+		<strong>Domain</strong>: The Underworld
+		<br>
+		<strong>Base HP</strong>: 700
+		<br>
+		<strong>Base Damage</strong>: 60-100
+		<br>
+		<strong>Resistance</strong>: Magic
+		<br>
+		<br>
+		<strong>Name</strong>: Demon King
+		<br>
+		<strong>Domain</strong>: Hell
+		<br>
+		<strong>Base HP</strong>: 850
+		<br>
+		<strong>Base Damage</strong>: 80-140
+		<br>
+		<strong>Resistance</strong>: Magic
+		<br>
+		<br>
+		</p>
+	  </div>
+	  <div id="contentCrime" class="content scrollable" style="display:none;">
+		<h5>Case 001&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;November 28, 2301<br>Reporting Officer: Tony Flour&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prepared by: Johnny Bread<br>Location of incident: Countrywide</h5>
+		<br>
+		<p>Name: Kyojiro Allista
+		<br>
+		Sex: Male
+		<br>
+		Age: 32
+		<br>
+		Height: 6'05"
+		<br>
+		Weight: 101kg
+		<br>
+		Innate: Unknown
+		<br>
+		<br>
+		<p>This man has been charged with mass murder, mutilation, torture.<br>With an estimated kill count of over 378 warriors and warriors only, all in the span of 3 months, this man has only been slaughtering warriors who were adventuring. In the middle of battles, Allista would come out of nowhere and brutally slaughter them.<br>Over 200 bodies of his victims were seen only near the forests, which is usually the first spot adventurers would go to. Some bodies were even found near the Shi Mountains, which is a very deadly place to be, indicating that this man is either a very strong warrior, or just en extremely powerful man with a special Innate.<br>However, when we captured him, we found out... he doesn't even have an Innate? When we left him alone and returned only a few minutes later to sounds of explosions and rumblings, only broken shackles and a hole in the wall was found.<br>Not a single trace of blood was found, and the way he broke through the walls and escaped the shackles was extremely clean, and there was no sign of struggle. There was no sign of Magic anywhere either, which only further indicates that this man was exceptionally strong.<br>Not a few minutes later, some of my partners called from one of our stations a few cities away, and they reported sighting Allista walking through the streets.<br>This man is a serious threat to society and mankind and has to be dealt with immediately.<br><br> Sentence: <strong>Death</strong></p>
+	  </div>
+      <button id="exitLibrary">Exit</button>
+    </div>
+	
+    <!-- Link to external JavaScript -->
+    <script src="roguelike.js"></script>
+	
+    <script>
+      // Simple title screen functionality
+      document.getElementById("playButton").addEventListener("click", function () {
+        document.getElementById("titleScreen").style.display = "none";
+        document.getElementById("gameContainer").style.display = "block";
+        // Optionally, initialize your game here (e.g., initGame())
+      });
+	  
+    </script>
+  </body>
+</html>
